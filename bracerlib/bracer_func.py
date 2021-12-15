@@ -28,8 +28,9 @@ import Levenshtein
 import networkx as nx
 import six
 from Bio import SeqIO
-from Bio.Alphabet import IUPAC
-from Bio.Alphabet import generic_dna
+#from Bio.Alphabet import IUPAC
+#from Bio.Alphabet import generic_dna
+#generic_dna = "DNA"
 from Bio.Seq import Seq
 
 from bracerlib.core import Cell, Recombinant
@@ -372,7 +373,8 @@ def find_possible_alignments(sample_dict, locus_names, cell_name, IMGT_seqs,
                                 if not l == "-":
                                     new_cdr3_seq += l
                             cdr3_seq = new_cdr3_seq
-                        cdr3 = Seq(str(cdr3_seq), generic_dna).translate()
+                        cdr3 = Seq(str(cdr3_seq)).translate()
+ #                       cdr3 = Seq(str(cdr3_seq), generic_dna).translate()
 
                     #Identify the most likely V and J genes
                     if locus in ["H", "BCR_H"]:
@@ -797,7 +799,8 @@ def get_fasta_line_for_contig_assembly(trinity_seq, hit_table, locus,
 
 def get_out_of_frame_cdr3(dna_seq, locus, frame):
     dna_seq = dna_seq[frame-1:]
-    aaseq = Seq(str(dna_seq), generic_dna).translate()
+    aaseq = Seq(str(dna_seq)).translate()
+#    aaseq = Seq(str(dna_seq), generic_dna).translate()
     if locus in ["BCR_H", "H"]:
         motif_start = "W"
     else:
@@ -840,7 +843,8 @@ def get_out_of_frame_cdr3(dna_seq, locus, frame):
     return (cdr3, motif)
 
 def get_cdr3(dna_seq, locus):
-    aaseq = Seq(str(dna_seq), generic_dna).translate()
+    aaseq = Seq(str(dna_seq)).translate()
+#    aaseq = Seq(str(dna_seq), generic_dna).translate()
     # Specify first amino acid in conserved motif according to receptor and locus
     if locus in ["BCR_H", "H"]:
         motif_start = "W"
@@ -1457,11 +1461,11 @@ def run_trim_galore(trim_galore, cutadapt, output_dir, cell_name, fastq1,
 
     if not single_end:
         command = [trim_galore, fastq1, fastq2, '--paired', '--suppress_warn',
-                  '--path_to_cutadapt', cutadapt, '--no_report_file',
+                  '--path_to_cutadapt', cutadapt, '--cores=8', '--no_report_file',
                   '-o', trimmed_read_dir]
     else:
         command = [trim_galore, fastq1, '--suppress_warn', '--path_to_cutadapt',
-                  cutadapt, '--no_report_file', '-o', trimmed_read_dir]
+                  cutadapt, '--cores=8', '--no_report_file', '-o', trimmed_read_dir]
     try:
         subprocess.check_call(command)
         print("Trimming completed")
@@ -2202,14 +2206,14 @@ def run_DefineClones(DefineClones, locus, outdir, species, distance):
             # Check if changeo-version >= 0.4
             if int(changeo_versions[0])>0 or int(changeo_versions[1]) >= 4:
                 command = [DefineClones, '-d', changeo_input, '--mode', 'gene', '--act', 'set',
-                '--model', model, '--dist', dist, '--sf', "JUNCTION", '--norm', 'len']
+                '--model', model, '--dist', dist, '--sf', "JUNCTION", '--norm', 'len' , '--format', 'changeo']
             else:
                 command = [DefineClones, "bygroup", '-d', changeo_input, '--mode', 'gene', '--act', 'set',
-                '--model', model, '--dist', dist, '--sf', "JUNCTION", '--norm', 'len']
+                '--model', model, '--dist', dist, '--sf', "JUNCTION", '--norm', 'len', '--format', 'changeo']
         
         except:
             command = [DefineClones, "bygroup", '-d', changeo_input, '--mode', 'gene', '--act', 'set',  
-                    '--model', model, '--dist', dist, '--sf', "JUNCTION", '--norm', 'len'] 
+                    '--model', model, '--dist', dist, '--sf', "JUNCTION", '--norm', 'len', '--format', 'changeo']
  
         subprocess.check_call(command) 
 
@@ -2230,7 +2234,7 @@ def run_MakeDb_for_cell(MakeDb, locus, outdir, species, gapped_seq_location,
         if os.path.isfile(seq_file) and os.path.getsize(seq_file) > 0:
             command = [MakeDb, 'igblast', '-i', makedb_input, '-s', seq_file,
                         '-r', gapped_seqs["V"], gapped_seqs["D"],
-                        gapped_seqs["J"], '--regions', '--scores']
+                        gapped_seqs["J"], '--extended']
             subprocess.check_call(command)
 
 
@@ -2252,7 +2256,7 @@ def run_MakeDb(MakeDb, locus, outdir, species, gapped_seq_location,
         if os.path.isfile(seq_file) and os.path.getsize(seq_file) > 0:
             command = [MakeDb, 'igblast', '-i', makedb_input, '-s', seq_file, 
                             '-r', gapped_seqs["V"], gapped_seqs["D"],
-                            gapped_seqs["J"], '--regions', '--scores']
+                            gapped_seqs["J"], '--extended']
 
             subprocess.check_call(command)
                 

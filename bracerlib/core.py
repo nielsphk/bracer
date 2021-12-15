@@ -2,7 +2,7 @@ import re
 from collections import Counter, defaultdict
 
 import six
-from Bio.Alphabet import generic_dna
+#from Bio.Alphabet import generic_dna
 from Bio.Seq import Seq
 
 

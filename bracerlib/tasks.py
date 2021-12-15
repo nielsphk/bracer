@@ -161,13 +161,13 @@ class TracerTask(object):
             
 
         with open(pickle_file, 'wb') as pf:
-            pickle.dump(cell, pf, protocol=0)
+            pickle.dump(cell, pf, protocol=4)
 
         cell.filter_recombinants()
         self.print_cell_summary(cell, filtered_summary, self.loci)
                                                                             
         with open(filtered_pickle, 'wb') as pf:
-            pickle.dump(cell, pf, protocol=0)
+            pickle.dump(cell, pf, protocol=4)
         
         exit(0)
     
@@ -412,10 +412,22 @@ class Assembler(TracerTask):
         # Create database dictionary
         cell.databasedict = cell.get_database_for_locus(self.loci)
 
+#        print("Her har jeg rettet")
+#        print(cell.__dict__)
+#        print(dir(cell)) 
+
+        # Save cell in a pickle
+#        with open(unfiltered_pickle, 'wb') as pf:
+#            pickle.dump(cell, pf, protocol=0
+
         # Save cell in a pickle
         with open(unfiltered_pickle, 'wb') as pf:
-            pickle.dump(cell, pf, protocol=0)
+            pickle.dump(cell, pf, protocol=4)
 
+
+
+
+            
 
         # Filter recombinants
         print("##Filtering by read count##")
@@ -427,7 +439,7 @@ class Assembler(TracerTask):
 
         # Save cell in a pickle
         with open(filtered_pickle, 'wb') as pf:
-            pickle.dump(cell, pf, protocol=0)
+            pickle.dump(cell, pf, protocol=4)
 
 
     def trim_reads(self):
@@ -1213,7 +1225,8 @@ class Summariser(TracerTask):
                 plt.figure()
                 plt.axvline(q[0], linestyle="--", color='k')
                 plt.axvline(q[1], linestyle="--", color='k')
-                sns.distplot(lns)
+#                sns.distplot(lns)
+                sns.histplot(lns, kde=True, stat="density", linewidth=0)
                 sns.despine()
                 plt.xlabel("BCR_{} reconstructed length (bp)".format(l))
                 plt.ylabel("Density")
